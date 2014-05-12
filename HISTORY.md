@@ -1,6 +1,7 @@
 unreleased
 ==========
 
+ * add charset checking
  * improve type parsing
 
    - invalid media type never matches

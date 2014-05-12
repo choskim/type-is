@@ -4,6 +4,8 @@ var mime = require('mime-types')
 
 module.exports = typeofrequest;
 typeofrequest.is = typeis;
+typeofrequest.charset = charsetofrequest;
+typeofrequest.charsetis = charsetis;
 typeofrequest.hasBody = hasbody;
 typeofrequest.normalize = normalize;
 typeofrequest.match = mimeMatch;
@@ -57,6 +59,50 @@ function typeis(value, types_) {
 
   // no matches
   return false;
+}
+
+/**
+ * Compare a `value` content-type with `charsets`.
+ *
+ * If `value` content-type has no chardet, undefined is returned.
+ * If no charserts match, `false` is returned.
+ * Otherwise, the first `charset` that matches is returned.
+ *
+ * @param {String} value
+ * @param {Array} charsets
+ * @return String
+ */
+
+function charsetis(value, charsets_) {
+  if (!value) return false
+  var charset
+  var charsets = charsets_
+  var match
+
+  // support flattened arguments
+  if (charsets && !Array.isArray(charsets)) {
+    charsets = new Array(arguments.length - 1)
+    for (i = 0; i < charsets.length; i++) {
+      charsets[i] = arguments[i + 1]
+    }
+  }
+
+  // get charset
+  try {
+    charset = typer.parse(value).parameters.charset.toLowerCase()
+  } catch (err) {
+    return undefined
+  }
+
+  // no charsets, return the charset
+  if (!charsets || !charsets.length) return charset
+
+  // no charset, return undefined
+  if (!charset) return undefined
+
+  return ~charsets.indexOf(charset)
+    ? charset
+    : false;
 }
 
 /**
@@ -126,6 +172,47 @@ function typeofrequest(req, types_) {
   var value = req.headers['content-type']
 
   return typeis(value, types);
+}
+
+/**
+ * Check if the incoming request contains the "Content-Type"
+ * header field, and it contains any of the give `charsets`s.
+ * If there is no request body, `null` is returned.
+ * If there is no content type, `false` is returned.
+ * If there is no charset, undefined is returned.
+ * Otherwise, it returns the first `charset` that matches.
+ *
+ * Examples:
+ *
+ *     // With Content-Type: text/html; charset=utf-8
+ *     this.charset('utf-8'); // => 'utf-8'
+ *     this.charset('utf-8', 'utf-16'); // => 'utf-8'
+ *
+ * @param {String|Array} charsets...
+ * @return {String|false|null|undefined}
+ * @api public
+ */
+
+function charsetofrequest(req, charsets_) {
+  var charsets = charsets_
+
+  // no body
+  if (!hasbody(req)) {
+    return null
+  }
+
+  // support flattened arguments
+  if (charsets && !Array.isArray(charsets)) {
+    charsets = new Array(arguments.length - 1)
+    for (i = 0; i < charsets.length; i++) {
+      charsets[i] = arguments[i + 1]
+    }
+  }
+
+  // request content type
+  var value = req.headers['content-type']
+
+  return charsetis(value, charsets)
 }
 
 /**

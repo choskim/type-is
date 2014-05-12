@@ -134,6 +134,39 @@ describe('typeis(req, type)', function(){
   })
 })
 
+describe('typeis.charset', function(){
+  it('should get charset', function(){
+    var r = req('text/html; charset=utf-8')
+    typeis.charset(r).should.equal('utf-8')
+  })
+
+  it('should get quoted charset', function(){
+    var r = req('text/html; charset="UTF-8"')
+    typeis.charset(r).should.equal('utf-8')
+  })
+
+  it('should get quoted charset with escapes', function(){
+    var r = req('text/html; charset = "UT\\F-\\\\\\"8\\""')
+    typeis.charset(r).should.equal('utf-\\"8"')
+  })
+
+  it('should get charset correctly', function(){
+    var r = req('text/html; param="charset=utf-7"')
+    assert(undefined === typeis.charset(r))
+  })
+
+  it('should match charset', function(){
+    var r = req('text/html; charset=utf-8')
+    typeis.charset(r, 'utf-8').should.equal('utf-8')
+    typeis.charset(r, 'utf-16').should.be.false
+  })
+
+  it('should match no charset', function(){
+    var r = req('text/html')
+    assert(undefined === typeis.charset(r, 'utf-8'))
+  })
+})
+
 describe('typeis.hasBody(req)', function(){
   describe('content-length', function(){
     it('should indicate body', function(){
