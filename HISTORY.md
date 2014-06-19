@@ -1,8 +1,16 @@
+unreleased
+==========
+
+ * improve type parsing
+
+   - invalid media type never matches
+   - media type not case-sensitive
+   - extra LWS does not affect results
 
 1.2.1 / 2014-06-03
 ==================
 
-* Switch dependency from `mime` to `mime-types@1.0.0`
+ * Switch dependency from `mime` to `mime-types@1.0.0`
 
 1.2.0 / 2014-05-11
 ==================
