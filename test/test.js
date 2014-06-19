@@ -58,6 +58,8 @@ describe('typeis(req, type)', function(){
       typeis(r, ['image/jpeg']).should.be.false;
       typeis(r, ['text/*']).should.be.false;
       typeis(r, ['*/jpeg']).should.be.false;
+
+      typeis(r, ['something/bogus*']).should.be.false;
     })
   })
 
